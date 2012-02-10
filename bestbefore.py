@@ -2,36 +2,21 @@
 
 import sys
 import re
-from datetime import datetime
-from itertools import permutations
-
-def illegal(s):
-    print "%s is illegal" % (s)
-    sys.exit()
+import datetime
+import itertools
 
 def solve(date_str):
-    millenium = datetime(2000,1,1)
-    sanitized = []
-    for part in date_str.split('/'):
-        tmp = re.sub(r'^00?$','2000',part)
-        sanitized.append(tmp)
-    date_str = '/'.join(sanitized)
-    perms = list(permutations(['%Y','%m','%d'],3))
-    perms.extend(list(permutations(['%y','%m','%d'],3)))
-    formats = [ '/'.join(p) for p in perms ]
-    dates_ = []
-    for fmt in formats:
+    parts = map(int,date_str.split('/'))
+    attempts = sorted(itertools.permutations(parts))
+    for dt in attempts:
+        year = dt[0] + 2000 if dt[0] < 1000 else dt[0]
         try:
-            dt = datetime.strptime(date_str,fmt)
-        except:
-            continue
-        dates_.append(dt)
-    dates_.sort()
-    if not dates_:
-        illegal(date_str)
-    if dates_[0] < millenium:
-        illegal(date_str)
-    print dates_[0].strftime("%Y-%m-%d")
+            print datetime.date(year,dt[1],dt[2]).strftime("%Y-%m-%d")
+            return
+        except ValueError:
+            pass
+    print "%s is illegal" % (date_str)
+    
     
 if __name__ == "__main__":
     solve(sys.stdin.readline().strip())
